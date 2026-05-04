@@ -1,75 +1,104 @@
-# Oil & Gas Data Pipeline
+# 🛢️ Oil & Gas Production Data Pipeline
 
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
+End-to-end data pipeline for Nigerian upstream oil field analytics — from simulated well production data to interactive dashboards and Power BI–ready exports.
 
-An end-to-end data pipeline that simulates, processes, and visualises daily oil field production data for a fictional Nigerian onshore field. Generates realistic production metrics, runs analytics with DuckDB, and outputs both a Power BI-ready dataset and a static interactive HTML dashboard.
+**Field:** Eko Field (OML 47) · Fictional Nigerian onshore asset  
+**Period:** Jan 2024 – Dec 2025 (2 years, daily granularity)
 
-## Who this is for
+---
 
-Upstream oil & gas commercial analysts, production engineers, E&P data teams, and energy sector recruiters looking for candidates with domain-specific data pipeline experience.
+## Architecture
 
-## Key metrics tracked
+```
+generate_data.py          →  data/daily_production.csv
+                              data/monthly_summary.csv
+                                      ↓
+pipeline.py (DuckDB)      →  output/power_bi_dataset.csv
+                              + 7 analytical views
+                                      ↓
+dashboard.py (Plotly)      →  output/dashboard.html
+                              (self-contained, no server)
+```
 
-| Metric | Description |
-|--------|-------------|
-| Daily production volume | Barrels of oil per day (bopd) |
-| Lifting cost per barrel | OPEX / production volume |
-| Production decline curve | Month-over-month decline analysis |
-| Revenue forecast | Scenarios at $75, $85, and $95 per barrel |
-| Downtime analysis | Hours lost and production deferred |
+## Tech Stack
 
-## Tech stack
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| Simulation | Python, NumPy | Realistic decline curves, water cut, downtime events |
+| Storage | CSV | Lightweight, version-controllable data |
+| Analytics | DuckDB | Serverless SQL engine — window functions, aggregations |
+| Visualization | Plotly | Interactive charts, static HTML export |
+| CI | GitHub Actions | Flake8 linting |
 
-- **Python** — data generation and orchestration
-- **DuckDB** — fast, serverless SQL analytics on local files
-- **Pandas** — data processing
-- **Plotly** — interactive HTML charts and dashboard
+## Key Features
 
-## How to run locally
+### Data Generation (`generate_data.py`)
+- Exponential production decline (15% annual rate)
+- Water cut progression (25% → 50%+ over field life)
+- Stochastic downtime events with 8 cause categories
+- OPEX/CAPEX simulation with realistic Nigerian field economics
+- Gas-Oil Ratio (GOR) tracking
+
+### Analytics Pipeline (`pipeline.py`)
+- **7 analytical queries** via DuckDB:
+  - Monthly production trends
+  - Month-over-month decline analysis (window functions)
+  - Lifting cost per barrel
+  - Revenue scenarios at $75/$85/$95 per barrel
+  - Downtime cause breakdown
+  - Deferred production quantification
+  - Field-level KPI summary
+- Power BI–ready flat dataset export
+
+### Dashboard (`dashboard.py`)
+- 8 KPI summary cards (production, revenue, costs, downtime)
+- 5 interactive charts:
+  - Production trend with water cut overlay
+  - Revenue vs operating costs
+  - Revenue sensitivity analysis (oil price scenarios)
+  - Lifting cost trend vs industry benchmark
+  - Downtime impact analysis
+- Dark-themed, Inter font, professional styling
+- Self-contained HTML — no server needed
+
+## Quick Start
 
 ```bash
-# Clone the repo
-git clone https://github.com/JimiR3d/oil-gas-data-pipeline.git
-cd oil-gas-data-pipeline
-
-# Install dependencies
 pip install -r requirements.txt
 
-# Generate 2 years of simulated production data
+# Step 1: Generate field data
 python generate_data.py
 
-# Run the analytics pipeline
+# Step 2: Run analytics pipeline
 python pipeline.py
 
-# Generate the interactive dashboard
+# Step 3: Build interactive dashboard
 python dashboard.py
+
+# Open output/dashboard.html in your browser
 ```
 
-The output dashboard is saved to `output/dashboard.html` — open it in any browser.
+## Sample Output
 
-## Live dashboard
+| Metric | Value |
+|--------|-------|
+| Avg Net Production | ~7,800 bopd |
+| Total Production (2yr) | ~5.7M bbls |
+| Avg Water Cut | ~33% |
+| Avg Lifting Cost | ~$25/bbl |
+| Downtime Events | ~36 |
 
-Download and open [`output/dashboard.html`](output/dashboard.html) directly — no Python required.
+## Project Context
 
-## Project structure
+This project demonstrates:
+- **Data engineering** — Python data generation, DuckDB SQL analytics
+- **Domain knowledge** — Nigerian upstream oil production economics
+- **Visualization** — Plotly interactive dashboards, Power BI export
+- **Software quality** — CI pipeline, documentation, modular architecture
 
-```
-oil-gas-data-pipeline/
-├── generate_data.py        # Simulates 2 years of field production data
-├── pipeline.py             # DuckDB aggregation logic
-├── dashboard.py            # Plotly HTML dashboard output
-├── data/
-│   └── (generated CSVs)
-├── output/
-│   └── dashboard.html      # Static exportable dashboard
-├── requirements.txt
-└── README.md
-```
+Built as part of my data analyst portfolio. All data is simulated; no proprietary information.
 
-## Context
+## Author
 
-Built by [Jimi Aboderin](https://github.com/JimiR3d) to demonstrate domain awareness in upstream oil & gas analytics — the exact KPIs (production volumes, lifting costs, decline curves, revenue scenarios) that commercial analysts at companies like Seplat Energy and Shell Nigeria track daily.
-
-## License
-
-MIT
+**Jimi Aboderin**  
+[LinkedIn](https://www.linkedin.com/in/oluwafolajinmi-aboderin-695848249/) · [GitHub](https://github.com/JimiR3d) · folajinmi13@gmail.com
